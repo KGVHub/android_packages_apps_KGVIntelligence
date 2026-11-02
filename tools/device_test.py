@@ -52,8 +52,8 @@ class Mcp:
             raise RuntimeError("%s: %s" % (method, reply["error"]))
         return reply["result"]
 
-    def tool(self, name, **args):
-        r = self.call("tools/call", {"name": name, "arguments": args})
+    def tool(self, tool_name, **args):
+        r = self.call("tools/call", {"name": tool_name, "arguments": args})
         text = "\n".join(c.get("text", "") for c in r["content"] if c["type"] == "text")
         images = [c for c in r["content"] if c["type"] == "image"]
         return text, images, r.get("isError", False)
@@ -84,10 +84,10 @@ def setup(serial, apk):
     adb(serial, "shell", "input", "keyevent", "KEYCODE_HOME")
     prefs = adb(serial, "shell", "run-as", PKG, "cat", "shared_prefs/kgv.xml", check=False)
     m = re.search(r'name="mcp_token">([^<]+)<', prefs)
-    if not m:
-        sys.exit("no MCP token: is this the debuggable test build, and is MCP on?")
     adb(serial, "forward", "tcp:%d" % LOCAL_PORT, "tcp:8765")
-    return m.group(1)
+    # The test build is debuggable, so run-as reads its token. On KGV FusionX the app
+    # can't be read that way, but there the server trusts adb without a token.
+    return m.group(1) if m else ""
 
 
 def main():
@@ -136,7 +136,8 @@ def main():
     check("swipe", not err, text[:80])
 
     # Tap the first clickable element and check the screen changed.
-    ids = re.findall(r"#(\d+)[^\n]*click", screen)
+    active = screen.split("(active)", 1)[-1]
+    ids = re.findall(r"#(\d+)[^\n]*\[tap\]", active)
     if ids:
         before = mcp.tool("read_screen")[0]
         text, _, err = mcp.tool("tap", id=int(ids[0]))
