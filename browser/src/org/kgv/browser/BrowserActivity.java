@@ -67,6 +67,14 @@ public class BrowserActivity extends Activity implements Tabs.Listener {
     @Override
     protected void onResume() {
         super.onResume();
+        // Opening the browser while the assistant works in it shows its tab, with the
+        // steps and Take over.
+        Tabs.Tab current = mTabs.current();
+        if (current == null || !current.agentActive()) {
+            for (Tabs.Tab t : mTabs.all()) {
+                if (t.agentActive()) mTabs.select(t);
+            }
+        }
         mTabs.addListener(this);
         onTabsChanged();
     }
