@@ -43,6 +43,7 @@ then tap Find my PC while the phone is on the same Wi-Fi. Nothing you ask leaves
     <string name="settings_automation_summary">Read the screen, tap, type, swipe and open apps</string>
     <string name="settings_shell">System shell</string>
     <string name="settings_shell_summary">Let the model run commands as the Android system user</string>
+    <string name="settings_max_steps">Max steps per task (10–1000): the assistant stops a task after this many actions</string>
     <string name="settings_root">Root access</string>
     <string name="settings_root_summary">Let the model run commands as root, with full control of the phone</string>
     <string name="settings_root_log">Root command log</string>

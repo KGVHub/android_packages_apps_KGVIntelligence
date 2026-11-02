@@ -410,6 +410,27 @@ public class SettingsActivity extends CollapsingToolbarBaseActivity {
         col.addView(mAutomation);
         col.addView(toggle(R.string.settings_shell, R.string.settings_shell_summary,
                 mPrefs.shellAllowed(), (b, on) -> mPrefs.setBool("shell", on)));
+        col.addView(label(getString(R.string.settings_max_steps)));
+        EditText steps = field(InputType.TYPE_CLASS_NUMBER);
+        steps.setText(String.valueOf(mPrefs.maxSteps()));
+        steps.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                try {
+                    mPrefs.setMaxSteps(Integer.parseInt(s.toString().trim()));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        });
+        col.addView(steps);
         if (Root.builtIn() || Root.available()) {
             col.addView(toggle(R.string.settings_root, R.string.settings_root_summary,
                     mPrefs.rootAllowed(), (b, on) -> mPrefs.setRootAllowed(on)));

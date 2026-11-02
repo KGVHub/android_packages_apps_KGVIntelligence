@@ -168,6 +168,18 @@ final class Prefs {
         return mPrefs.getBoolean("shell", true);
     }
 
+    static final int MIN_STEPS = 10;
+    static final int MAX_STEPS = 1000;
+
+    /** How many steps (model calls) one task may take before the assistant stops. */
+    int maxSteps() {
+        return Math.max(MIN_STEPS, Math.min(MAX_STEPS, mPrefs.getInt("max_steps", 200)));
+    }
+
+    void setMaxSteps(int steps) {
+        mPrefs.edit().putInt("max_steps", Math.max(MIN_STEPS, Math.min(MAX_STEPS, steps))).apply();
+    }
+
     /** Root commands for the assistant: on KGV FusionX, kgv_rootd (persist.kgv.root). */
     boolean rootAllowed() {
         if (Root.builtIn()) return "1".equals(prop("persist.kgv.root", "1"));
