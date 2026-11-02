@@ -430,6 +430,10 @@ public class SettingsActivity extends CollapsingToolbarBaseActivity {
                 }
             }
         });
+        // Show the value in use (10-1000) once the user leaves the field.
+        steps.setOnFocusChangeListener((v, focused) -> {
+            if (!focused) steps.setText(String.valueOf(mPrefs.maxSteps()));
+        });
         col.addView(steps);
         if (Root.builtIn() || Root.available()) {
             col.addView(toggle(R.string.settings_root, R.string.settings_root_summary,

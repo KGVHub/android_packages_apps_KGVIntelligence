@@ -24,6 +24,8 @@ import android.widget.Toast;
  * glow around the screen edges. Opened by holding Home.
  */
 public class AssistActivity extends Activity implements Conversation.Listener {
+    static final String EXTRA_PREFILL = "org.kgv.intelligence.extra.PREFILL";
+
     private SiriGlow mGlow;
     private KgvOrb mOrb;
     private boolean mListening;
@@ -55,7 +57,11 @@ public class AssistActivity extends Activity implements Conversation.Listener {
         findViewById(R.id.root).setOnClickListener(v -> finish());
         findViewById(R.id.settings).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
-        mSend.setOnClickListener(v -> send());
+        // Send, or while a task runs, Stop (e.g. when the model goes the wrong way).
+        mSend.setOnClickListener(v -> {
+            if (Conversation.get().isBusy()) Agent.cancel();
+            else send();
+        });
         mMic = findViewById(R.id.mic);
         mVoice = new Voice(this, new Voice.Listener() {
             @Override
@@ -108,6 +114,15 @@ public class AssistActivity extends Activity implements Conversation.Listener {
             Prefs.setAutomationEnabled(this, true);
         }
         McpService.sync(this);
+        prefill(getIntent());
+    }
+
+    /** KGV Browser's Ask KGV starts the question with the page it is about. */
+    private void prefill(Intent intent) {
+        String text = intent != null ? intent.getStringExtra(EXTRA_PREFILL) : null;
+        if (text == null) return;
+        mInput.setText(text);
+        mInput.setSelection(text.length());
     }
 
     @Override
@@ -134,6 +149,7 @@ public class AssistActivity extends Activity implements Conversation.Listener {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         onChanged();
+        prefill(intent);
     }
 
     private void send() {
@@ -160,8 +176,8 @@ public class AssistActivity extends Activity implements Conversation.Listener {
         boolean busy = Conversation.get().isBusy();
         if (busy) mMessages.addView(bubble(Conversation.STEP, "Thinking…"));
         updateGlow();
-        mSend.setEnabled(!busy);
-        mSend.setAlpha(busy ? 0.4f : 1f);
+        mSend.setImageResource(busy ? R.drawable.ic_stop : R.drawable.ic_send);
+        mSend.setContentDescription(getString(busy ? R.string.stop : R.string.send));
         mScroll.post(() -> mScroll.fullScroll(View.FOCUS_DOWN));
     }
 
