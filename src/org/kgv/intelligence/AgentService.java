@@ -484,7 +484,7 @@ public class AgentService extends AccessibilityService {
         int pad = dp(10);
         pill.setPadding(dp(14), pad, dp(8), pad);
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(0xE6121014);
+        bg.setColor(getColor(R.color.sheet));  // the orb is rendered on this colour
         bg.setCornerRadius(dp(24));
         bg.setStroke(dp(1), 0xFFFF2D3A);
         pill.setBackground(bg);

@@ -1,10 +1,8 @@
 package org.kgv.intelligence;
 
 import android.content.Context;
-import android.graphics.BlendMode;
 import android.graphics.Canvas;
 import android.graphics.ImageDecoder;
-import android.graphics.Paint;
 import android.graphics.drawable.AnimatedImageDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -15,9 +13,9 @@ import java.io.IOException;
 /**
  * KGV X Intelligence's orb: a fluid core of glowing dots, sheets curling around it and
  * electric sparks in a glass sphere, in deep reds. It plays res/raw/kgv_orb.webp (made by
- * tools/render_orb.py: a seamless 10 s loop at 60 fps), which Android decodes off the UI
- * thread; drawn with additive blending, so its black background adds nothing. It brightens
- * while listening or working and swells with the voice.
+ * tools/render_orb.py: a seamless 10 s loop at 60 fps, on the chat card's colour), which
+ * Android decodes off the UI thread. It brightens while listening or working and swells
+ * with the voice.
  */
 final class KgvOrb extends View {
     static final int RED = 0xFFD4101F;
@@ -49,10 +47,6 @@ final class KgvOrb extends View {
             Log.w("KGVOrb", "can't load the orb", e);
         }
         mOrb = orb;
-        // Composite the whole view additively: black adds nothing, the light glows.
-        Paint add = new Paint();
-        add.setBlendMode(BlendMode.PLUS);
-        setLayerType(LAYER_TYPE_HARDWARE, add);
         setAlpha(IDLE_ALPHA);
     }
 

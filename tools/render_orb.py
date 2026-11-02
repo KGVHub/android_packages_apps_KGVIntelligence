@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Renders the KGV X Intelligence orb (res/raw/kgv_orb.webp): a fluid dot-mesh core,
 wide curling dotted sheets around the shell, electric sparks and a glass rim, in deep
-reds with white-hot edges. A seamless 10 s loop on black; the app draws it with additive
-blending (KgvOrb), so the black adds nothing and the light glows over the chat card.
+reds with white-hot edges. A seamless 10 s loop; the light is added onto BG, the chat
+card's colour (@color/sheet), so the orb sits seamlessly on the card.
 
 usage: render_orb.py <frames> <size> [first last]   (frames as o%04d.ppm)
 then:  magick -delay 1x60 -loop 0 o*.ppm -quality 75 -define webp:method=6 kgv_orb.webp
@@ -12,6 +12,7 @@ import math, random, sys
 TAU = 2*math.pi
 W = H = int(sys.argv[2]) if len(sys.argv) > 2 else 320
 RED, ROSE, MAGENTA, SCARLET, HOT = 0xD4101F, 0xE0485A, 0xB01040, 0xD8302A, 0xFFD2D7
+BG = 0x121014                      # @color/sheet in res/values/styles.xml
 def rgb(c): return ((c >> 16) & 255, (c >> 8) & 255, c & 255)
 def unit(v):
     l = math.sqrt(sum(x*x for x in v)); return [x/l for x in v]
@@ -33,7 +34,7 @@ for k, (col, turns) in enumerate([(ROSE, 1), (MAGENTA, -1), (SCARLET, 1), (RED, 
 SU, SV = 220, 24
 def frame(s, out, sparks_seed):
     a0 = TAU*s
-    buf = [[0.0]*3 for _ in range(W*H)]
+    buf = [list(map(float, rgb(BG))) for _ in range(W*H)]
     def add(x, y, col, a, rad=0.6):
         xi, yi = int(x), int(y)
         for dy in (-1, 0, 1):
