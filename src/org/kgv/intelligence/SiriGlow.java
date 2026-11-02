@@ -16,8 +16,10 @@ import android.view.WindowInsets;
  * Siri. Brighter while the assistant listens or works; the voice level makes it pulse.
  */
 final class SiriGlow extends View {
+    // KgvOrb's reds, turning around the screen.
     private static final int[] COLORS = {
-            0xFFFF2D3A, 0xFFFF6EC4, 0xFF9B6BFF, 0xFF4F8BFF, 0xFF3FE0D0, 0xFFFFB45A, 0xFFFF2D3A,
+            KgvOrb.PALETTE[0], KgvOrb.PALETTE[2], KgvOrb.PALETTE[4], KgvOrb.PALETTE[3],
+            KgvOrb.PALETTE[1], KgvOrb.PALETTE[0],
     };
     // Soft outer glow to sharp inner line: stroke width (dp) and alpha.
     private static final float[] WIDTHS = {34, 20, 10, 3.5f};

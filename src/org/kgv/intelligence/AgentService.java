@@ -27,7 +27,6 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -54,6 +53,7 @@ public class AgentService extends AccessibilityService {
     private final List<AccessibilityNodeInfo> mNodes = new ArrayList<>();
     private View mStatus;
     private SiriGlow mGlow;
+    private KgvOrb mOrb;
     private TextView mStatusText;
 
     static AgentService get() {
@@ -437,6 +437,7 @@ public class AgentService extends AccessibilityService {
         mMain.post(() -> {
             if (mStatus == null) createStatus();
             mGlow.setActive(working);
+            mOrb.setActive(working);
             mStatusText.setText(text);
             mStatus.setAlpha(working ? 1f : 0.92f);
             mMain.removeCallbacks(mAutoHide);
@@ -488,9 +489,9 @@ public class AgentService extends AccessibilityService {
         bg.setStroke(dp(1), 0xFFFF2D3A);
         pill.setBackground(bg);
 
-        ImageView icon = new ImageView(this);
-        icon.setImageResource(R.drawable.ic_kgv);
-        pill.addView(icon, new LinearLayout.LayoutParams(dp(22), dp(22)));
+        mOrb = new KgvOrb(this);
+        mOrb.setActive(true);
+        pill.addView(mOrb, new LinearLayout.LayoutParams(dp(34), dp(34)));
 
         mStatusText = new TextView(this);
         mStatusText.setTextColor(Color.WHITE);

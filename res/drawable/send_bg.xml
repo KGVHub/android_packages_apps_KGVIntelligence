@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The glow's colours, so sending matches the Siri-like edge light. -->
+<!-- The orb's reds. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
     <gradient
         android:angle="315"
-        android:startColor="#FFFF2D3A"
-        android:centerColor="#FF9B6BFF"
-        android:endColor="#FF4F8BFF" />
+        android:startColor="#FFFF7A90"
+        android:centerColor="#FFFF2D3A"
+        android:endColor="#FFE0185C" />
 </shape>

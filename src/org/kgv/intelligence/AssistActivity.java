@@ -25,6 +25,7 @@ import android.widget.Toast;
  */
 public class AssistActivity extends Activity implements Conversation.Listener {
     private SiriGlow mGlow;
+    private KgvOrb mOrb;
     private boolean mListening;
     private LinearLayout mMessages;
     private ScrollView mScroll;
@@ -43,6 +44,9 @@ public class AssistActivity extends Activity implements Conversation.Listener {
         mGlow = new SiriGlow(this);
         ((ViewGroup) getWindow().getDecorView()).addView(mGlow, 0, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mOrb = new KgvOrb(this);
+        ((ViewGroup) findViewById(R.id.orb)).addView(mOrb);
+        mOrb.setOnClickListener(v -> mVoice.toggle());
         mMessages = findViewById(R.id.messages);
         mScroll = findViewById(R.id.scroll);
         mInput = findViewById(R.id.input);
@@ -77,6 +81,7 @@ public class AssistActivity extends Activity implements Conversation.Listener {
             @Override
             public void onLevel(float rmsDb) {
                 mGlow.setVoiceLevel(rmsDb);
+                mOrb.setVoiceLevel(rmsDb);
             }
         });
         mMic.setColorFilter(0xFFFFFFFF);
@@ -161,7 +166,9 @@ public class AssistActivity extends Activity implements Conversation.Listener {
     }
 
     private void updateGlow() {
-        mGlow.setActive(mListening || Conversation.get().isBusy());
+        boolean active = mListening || Conversation.get().isBusy();
+        mGlow.setActive(active);
+        mOrb.setActive(active);
     }
 
     private View bubble(int kind, String text) {
