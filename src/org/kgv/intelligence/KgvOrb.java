@@ -22,11 +22,11 @@ import java.util.Random;
  * and swells with the voice.
  */
 final class KgvOrb extends View {
-    static final int RED = 0xFFFF2D3A;
-    static final int ROSE = 0xFFFF7A90;
-    static final int MAGENTA = 0xFFE0185C;
-    static final int SCARLET = 0xFFFF5A4E;
-    static final int HOT = 0xFFFFE6EA;
+    static final int RED = 0xFFD4101F;
+    static final int ROSE = 0xFFE0485A;
+    static final int MAGENTA = 0xFFB01040;
+    static final int SCARLET = 0xFFD8302A;
+    static final int HOT = 0xFFFFD2D7;
     /** The orb's colours, for the edge glow and buttons. */
     static final int[] PALETTE = {RED, ROSE, HOT, MAGENTA, SCARLET};
 
@@ -156,8 +156,8 @@ final class KgvOrb extends View {
         mRimShader = new SweepGradient(cx, cy, new int[] {HOT, RED, MAGENTA, ROSE, SCARLET, HOT},
                 null);
         // A soft red glow inside the glass, falling off cleanly.
-        mHalo.setShader(new RadialGradient(cx, cy, R * 1.05f, new int[] {0x29FF1E2D,
-                0x1CFF1E2D, 0x0AFF1E2D, 0x02FF1E2D, 0x00FF1E2D},
+        mHalo.setShader(new RadialGradient(cx, cy, R * 1.05f, new int[] {0x29D20E18,
+                0x1CD20E18, 0x0AD20E18, 0x02D20E18, 0x00D20E18},
                 new float[] {0f, 0.32f, 0.55f, 0.8f, 1f}, Shader.TileMode.CLAMP));
     }
 
