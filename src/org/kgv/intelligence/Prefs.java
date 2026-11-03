@@ -170,6 +170,11 @@ final class Prefs {
         return mPrefs.getBoolean("shell", true);
     }
 
+    /** Ask before risky actions (sending, calling, paying, deleting, root changes). */
+    boolean askFirst() {
+        return mPrefs.getBoolean("ask_first", true);
+    }
+
     Context context() {
         return mContext;
     }
