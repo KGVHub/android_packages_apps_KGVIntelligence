@@ -66,6 +66,7 @@ public class AssistActivity extends Activity implements Conversation.Listener {
         mChips = findViewById(R.id.chips);
 
         findViewById(R.id.root).setOnClickListener(v -> finish());
+        findViewById(R.id.mode).setOnClickListener(v -> chooseMode());
         findViewById(R.id.settings).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
         // Send, or while a task runs, Stop (e.g. when the model goes the wrong way).
@@ -154,6 +155,7 @@ public class AssistActivity extends Activity implements Conversation.Listener {
     @Override
     protected void onStart() {
         super.onStart();
+        showMode();
         Conversation.get().addListener(this);
         onChanged();
         mInput.requestFocus();
@@ -196,7 +198,7 @@ public class AssistActivity extends Activity implements Conversation.Listener {
         updateGlow();
         mSend.setImageResource(busy ? R.drawable.ic_stop : R.drawable.ic_send);
         mSend.setContentDescription(getString(busy ? R.string.stop : R.string.send));
-        mScroll.post(() -> mScroll.fullScroll(View.FOCUS_DOWN));
+        mScroll.post(this::scrollToEnd);
     }
 
     /**
@@ -236,8 +238,17 @@ public class AssistActivity extends Activity implements Conversation.Listener {
         if (lp.height != want) {
             lp.height = want;
             mScroll.setLayoutParams(lp);
-            mScroll.post(() -> mScroll.fullScroll(View.FOCUS_DOWN));
+            mScroll.post(this::scrollToEnd);
         }
+    }
+
+    /**
+     * Shows the newest message. Not fullScroll(FOCUS_DOWN): that also moves focus to the
+     * last focusable view, a message bubble (selectable text), which took focus from the
+     * input whenever the keyboard opened, and the keyboard closed again at once.
+     */
+    private void scrollToEnd() {
+        mScroll.scrollTo(0, Math.max(0, mMessages.getHeight() - mScroll.getHeight()));
     }
 
     private void updateGlow() {
@@ -291,6 +302,74 @@ public class AssistActivity extends Activity implements Conversation.Listener {
         tv.setBackground(bg);
         tv.setLayoutParams(lp);
         return tv;
+    }
+
+    /** The header's pill: Control (outlined) or Full access (red). */
+    private void showMode() {
+        TextView pill = findViewById(R.id.mode);
+        boolean full = new Prefs(this).fullAccess();
+        pill.setText(full ? "Full access" : "Control");
+        pill.setTextColor(full ? 0xFFFFFFFF : getColor(R.color.text_dim));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dp(15));
+        if (full) bg.setColor(getColor(R.color.kgv_red));
+        else bg.setStroke(dp(1), getColor(R.color.text_dim));
+        pill.setBackground(bg);
+        pill.setContentDescription("Mode: " + pill.getText() + ". Tap to change.");
+    }
+
+    private void chooseMode() {
+        Prefs prefs = new Prefs(this);
+        String[] names = {"Control", "Full access"};
+        String[] about = {
+                "Asks before sending, calls, payments, deleting and root changes.",
+                "Acts on its own, with no approval prompts."};
+        int current = prefs.fullAccess() ? 1 : 0;
+        CharSequence[] items = new CharSequence[2];
+        for (int i = 0; i < 2; i++) {
+            android.text.SpannableString item = new android.text.SpannableString(
+                    names[i] + "\n" + about[i]);
+            item.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0,
+                    names[i].length(), 0);
+            item.setSpan(new android.text.style.RelativeSizeSpan(0.85f), names[i].length(),
+                    item.length(), 0);
+            items[i] = item;
+        }
+        // Own radio buttons: the stock single-choice rows clip two-line text.
+        android.widget.RadioGroup group = new android.widget.RadioGroup(this);
+        group.setPadding(dp(20), dp(8), dp(20), dp(4));
+        AlertDialog[] dialog = new AlertDialog[1];
+        for (int i = 0; i < 2; i++) {
+            android.widget.RadioButton r = new android.widget.RadioButton(this);
+            r.setId(View.generateViewId());
+            r.setText(items[i]);
+            r.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+            r.setPadding(dp(10), dp(10), 0, dp(10));
+            r.setChecked(i == current);
+            int which = i;
+            r.setOnClickListener(v -> {
+                dialog[0].dismiss();
+                if (which == current) return;
+                if (which == 0) {
+                    prefs.setMode(Prefs.MODE_CONTROL);
+                    showMode();
+                    return;
+                }
+                new AlertDialog.Builder(this)
+                        .setTitle("Turn on full access?")
+                        .setMessage("The assistant will send messages, make calls, pay, delete "
+                                + "and run root commands without asking you first. Use it for "
+                                + "tasks you trust it with; switch back to Control any time.")
+                        .setPositiveButton("Full access", (d2, w) -> {
+                            prefs.setMode(Prefs.MODE_FULL);
+                            showMode();
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+            });
+            group.addView(r);
+        }
+        dialog[0] = new AlertDialog.Builder(this).setTitle("Mode").setView(group).show();
     }
 
     /** A risky action waiting for the user: Approve / Deny, then what they chose. */

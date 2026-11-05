@@ -10,7 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Switch;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,28 +41,26 @@ final class PersonalPage {
 
     private void rebuild() {
         mCol.removeAllViews();
-        Switch ask = new Switch(mA);
-        ask.setText("Ask before risky actions\nSending messages, calls, payments, deleting, "
-                + "root changes and password fills wait for your Approve.");
-        ask.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-        ask.setPadding(0, dp(10), 0, dp(10));
-        ask.setChecked(mPrefs.askFirst());
-        ask.setOnCheckedChangeListener((b, on) -> {
-            if (on) {
-                mPrefs.setBool("ask_first", true);
-                return;
-            }
-            new AlertDialog.Builder(mA)
-                    .setTitle("Stop asking?")
-                    .setMessage("The assistant will send, call, pay and delete without asking "
-                            + "you first. Web pages and messages it reads could try to make it "
-                            + "do so.")
-                    .setPositiveButton("Stop asking", (d, w) -> mPrefs.setBool("ask_first", false))
-                    .setNegativeButton(android.R.string.cancel, (d, w) -> b.setChecked(true))
-                    .setOnCancelListener(d -> b.setChecked(true))
-                    .show();
-        });
-        mCol.addView(ask);
+        header("Mode");
+        RadioGroup modes = new RadioGroup(mA);
+        RadioButton control = radio("Control\nWorks on the phone; sending, calls, payments, "
+                + "deleting, root changes and password fills wait for your Approve.");
+        RadioButton full = radio("Full access\nWorks on its own until the task is done, with "
+                + "no approval prompts. MCP clients still ask.");
+        modes.addView(control);
+        modes.addView(full);
+        (mPrefs.fullAccess() ? full : control).setChecked(true);
+        control.setOnClickListener(v -> mPrefs.setMode(Prefs.MODE_CONTROL));
+        full.setOnClickListener(v -> new AlertDialog.Builder(mA)
+                .setTitle("Turn on full access?")
+                .setMessage("The assistant will send, call, pay, delete and run root commands "
+                        + "without asking you first. Web pages and messages it reads could try "
+                        + "to make it do so.")
+                .setPositiveButton("Full access", (d, w) -> mPrefs.setMode(Prefs.MODE_FULL))
+                .setNegativeButton(android.R.string.cancel, (d, w) -> control.setChecked(true))
+                .setOnCancelListener(d -> control.setChecked(true))
+                .show());
+        mCol.addView(modes);
 
         memory();
         shortcuts();
@@ -289,6 +288,15 @@ final class PersonalPage {
         mA.getTheme().resolveAttribute(android.R.attr.colorAccent, accent, true);
         tv.setTextColor(accent.data);
         mCol.addView(tv);
+    }
+
+    private RadioButton radio(String text) {
+        RadioButton r = new RadioButton(mA);
+        r.setId(View.generateViewId());
+        r.setText(text);
+        r.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        r.setPadding(dp(8), dp(8), 0, dp(8));
+        return r;
     }
 
     private void dim(String text) {

@@ -452,7 +452,8 @@ final class Skills {
         if (!exists(name, prefs, mcp)) return new Result("Unknown or disabled skill " + name);
         Def def = def(name);
         try {
-            if (def.risk != null && prefs.askFirst()) {
+            // MCP clients are other programs: they always ask, whatever the mode.
+            if (def.risk != null && (mcp || prefs.askFirst())) {
                 String what = def.risk.check(context, a);
                 if (what != null && !Approvals.ask(context, what, mcp)) {
                     return new Result("Not done: the user declined (" + what + "). Don't try "
